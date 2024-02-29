@@ -1,0 +1,92 @@
+body {
+    min-height: 100vh;
+    background: #63c5da;
+}
+
+.page_content {
+    display: grid;
+    gap: 2px;
+    grid-template-rows: 120px 1fr;
+    height: 98vh;
+    width: 98vw;
+    padding: 4px;
+    background: #e8e8e8;
+    border-radius: 5px;
+}
+
+.top,
+main {
+    background: #e8e8e8;
+    margin: 4px;
+    width: 99%;
+}
+
+.top {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+}
+
+header,
+nav {
+    background: #63c5da;
+    padding: 10px;
+}
+
+main {
+    display: grid;
+    gap: 2px;
+    grid-template-rows: 2fr 1fr;
+}
+
+.today_weather {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: 1fr 1fr;
+}
+
+.today_summary {
+    padding: 2px;
+    display: grid;
+    grid-template-rows: 2fr 1fr;
+    gap: 2px;
+    background: #63c5da;
+}
+
+.morn-noon-eve {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+}
+
+.morn-noon-eve>div,
+.overview>div {
+    background: #e8e8e8;
+}
+
+.today_details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 2px;
+}
+
+.overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+}
+
+.today_details>div {
+    background: #63c5da;
+}
+
+.upcoming_summary {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.upcoming_summary>div {
+    background: #63c5da;
+}
