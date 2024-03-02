@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const recipeList = document.getElementById('recipeList');
     const form = document.getElementById('search_form');
 
+    let nextPageUrl;
+    let previousPages = [];
+    let prevPageUrl;
+
+
     const APP_ID = '9af66a6d';
     const APP_KEY = '0944d15e8638421455a20559e52ab018';
 
@@ -11,28 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         e.preventDefault();
         const searchQuery = searchInput.value;
+        const url = `https://api.edamam.com/api/recipes/v2?type=public&q=${searchQuery}&app_id=${APP_ID}&app_key=${APP_KEY}`;
 
-        showLoading();
+        fetchSearchData(url);
 
-        try {
-
-            const response = await fetch(`https://api.edamam.com/search?q=${searchQuery}&app_id=${APP_ID}&app_key=${APP_KEY}`);
-            const data = await response.json();
-            displayRecipes(data.hits);
-
-        } catch (error) {
-
-            console.error('Error fetching data:', error);
-
-        } finally {
-
-            hideLoading();
-
-        }
     });
+
+    const nextPageButton = document.getElementById('next_page');
+    nextPageButton.addEventListener('click', fetchNextPage);
+
+    const prevPageButton = document.getElementById('prev_page');
+    prevPageButton.addEventListener('click', fetchPrevPage);
 
 
     function showLoading() {
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
         const loadingBar = document.querySelector('.loading-bar');
         loadingBar.style.display = 'block';
     }
@@ -42,8 +45,112 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingBar.style.display = 'none';
     }
 
+    async function fetchPrevPage(url) {
+
+        showLoading();
+
+        try {
+            if (previousPages.length > 1) {
+
+                previousPages.pop();
+                prevPageUrl = previousPages[previousPages.length - 1];
+
+                const prevPageResponse = await fetch(prevPageUrl);
+                const prevPageData = await prevPageResponse.json();
+
+                displayRecipes(prevPageData.hits);
+
+            }
+        } catch (error) {
+
+            console.error("Error fetching previous page.", error.message);
+
+        } finally {
+
+            hideLoading();
+
+        }
+
+    }
+
+    async function fetchSearchData(url) {
+
+        previousPages = [];
+
+        showLoading();
+
+        try {
+            // Make a request to the API and wait for it to complete so that we can access its data
+            const response = await fetch(url);
+
+            const data = await response.json();
+            displayRecipes(data.hits);
+
+            if (data && data._links && data._links.next) {
+
+                prevPageButton.style.borderColor = '#0f1523';
+
+                nextPageUrl = data._links.next.href;
+                nextPageButton.style.borderColor = '#9048dc';
+
+                previousPages.push(url);
+            }
+
+
+        } catch (error) {
+
+            console.error('Error fetching data:', error.message);
+            //Incase an error has been returned from the API
+
+        } finally {
+            hideLoading();
+        }
+    }
+
+    async function fetchNextPage() {
+        if (nextPageUrl) {
+
+            showLoading();
+
+            try {
+
+                const nextPageResponse = await fetch(nextPageUrl);
+                const nextPageData = await nextPageResponse.json();
+                displayRecipes(nextPageData.hits);
+
+                if (nextPageData && nextPageData._links && nextPageData._links.next) {
+
+                    nextPageUrl = nextPageData._links.next.href;
+                    nextPageButton.style.borderColor = '#9048dc';
+
+                    previousPages.push(nextPageUrl);
+
+                    prevPageButton.style.borderColor = '#9048dc';
+                } else {
+
+                    nextPageUrl = '';
+                    nextPageButton.style.borderColor = '#0f1523';
+
+                }
+
+            } catch (error) {
+
+                console.error('Error fetching next page data:', error.message);
+            } finally {
+
+                hideLoading();
+
+            }
+        }
+    }
 
     function displayRecipes(recipes) {
+
+        if (previousPages.length === 1) {
+
+            prevPageButton.style.borderColor = '#0f1523';
+
+        };
 
         recipeList.innerHTML = '';
 
@@ -93,6 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
             recipeItem.appendChild(recipeDetails);
 
             recipeList.appendChild(recipeItem);
+
+            const footer = document.getElementById('footer');
+            footer.style.display = 'flex';
+
         });
     }
+
 });
